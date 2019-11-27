@@ -15,27 +15,26 @@ public class Main {
         System.setIn(new FileInputStream("src/com/company/input"));
         Scanner input = new Scanner(System.in);
 
-        int spotDlaObjectuZTabelaXY=1;
+        int SZEROK = input.nextInt();
+        int WYSOK = input.nextInt();
 
-        int szerok = input.nextInt();
-        int wysok = input.nextInt();
+        int[][] XY_MAP = new int[WYSOK][SZEROK];
 
-        int[][] XY_table = new int[wysok][szerok];
         int aboveGasStation = 1;
         int NoOfGasStations =0;
-        for (int k = 0; k < wysok; k++) {
-            for (int l = 0; l < szerok; l++) {
-                XY_table[k][l] = input.nextInt();
-                if (XY_table[k][l] > aboveGasStation )
-                    if (XY_table[k][l] > NoOfGasStations) NoOfGasStations = XY_table[k][l];
+        for (int k = 0; k < WYSOK; k++) {
+            for (int l = 0; l < SZEROK; l++) {
+                XY_MAP[k][l] = input.nextInt();
+                if (XY_MAP[k][l] > aboveGasStation )
+                    if (XY_MAP[k][l] > NoOfGasStations) NoOfGasStations = XY_MAP[k][l];
             }
         }
         NoOfGasStations-=1;
 
-        int no_of_cases = input.nextInt();
-        Case[] tabeleOfCases = new Case[no_of_cases];
+        int NO_OF_CASES = input.nextInt();
+        Case[] TABLE_OF_CASES = new Case[NO_OF_CASES];
 
-        for (int n = 0; n < no_of_cases; n++) {
+        for (int n = 0; n < NO_OF_CASES; n++) {
             Case givenCase = new Case();
             givenCase.setXofStart(input.nextInt());
             givenCase.setYofStart(input.nextInt());
@@ -49,10 +48,10 @@ public class Main {
             }
             givenCase.setFuelOnStations(gasOnStations);
 
-            tabeleOfCases[n] = givenCase;
+            TABLE_OF_CASES[n] = givenCase;
         }
 
-        System.out.println(Arrays.toString(tabeleOfCases));
+        System.out.println(Arrays.toString(TABLE_OF_CASES));
 
 
 
@@ -65,13 +64,172 @@ public class Main {
         //Graph graph = new Graph(X);
         //graph.addEdge(1,2);
 
+        Graph graph = createGraph(XY_MAP,WYSOK,SZEROK);
+
+        System.out.println(graph);
+
+        System.out.println("shortest using bfs: "+ BFSStandard(graph,0,23));
 
         long b = System.currentTimeMillis();
         System.out.println("runtime was : " + (b - a) + " ms");
 
     }
 
+    private static Graph createGraph(int[][] map, int wysok, int szer){
+
+        System.out.println(Arrays.deepToString(map));
+        Graph graph = new Graph(szer*wysok);
+
+        int[][] nodesNumerated = new int [wysok][szer];
+        int no =0;
+        for (int k = 0; k < wysok; k++) {
+            for (int l = 0; l < szer; l++) {
+                nodesNumerated[k][l] = no;
+                no++;
+            }}
+        System.out.println(Arrays.deepToString(nodesNumerated));
+
+        for (int k = 0; k < wysok; k++) {
+            for (int l = 0; l < szer; l++) {
+
+                if (k >= 1 && l >= 1 && k < wysok - 1 && l < szer - 1) {
+                    if (map[k][l] > 0 && map[k][l - 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l - 1]);
+                    }
+                    if (map[k][l] > 0 && map[k][l + 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l + 1]);
+                    }
+                    if (map[k][l] > 0 && map[k - 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k - 1][l]);
+                    }
+                    if (map[k][l] > 0 && map[k + 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k + 1][l]);
+                    }
+                }
+                if (k == 0 && l >= 1 && l < szer - 1) {
+                    if (map[k][l] > 0 && map[k][l - 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l - 1]);
+                    }
+                    if (map[k][l] > 0 && map[k][l + 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l + 1]);
+                    }
+                    if (map[k][l] > 0 && map[k + 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k + 1][l]);
+                    }
+                }
+
+                if (k == wysok - 1 && l >= 1 && l < szer - 1) {
+                    if (map[k][l] > 0 && map[k][l - 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l - 1]);
+                    }
+                    if (map[k][l] > 0 && map[k][l + 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l + 1]);
+                    }
+                    if (map[k][l] > 0 && map[k - 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k - 1][l]);
+                    }
+                }
+                if (l == 0 && k >= 1 && k < wysok - 1) {
+                    if (map[k][l] > 0 && map[k][l + 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l + 1]);
+                    }
+                    if (map[k][l] > 0 && map[k - 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k - 1][l]);
+                    }
+                    if (map[k][l] > 0 && map[k + 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k + 1][l]);
+                    }
+                }
+                if (l == szer - 1 && k >= 1 && k < wysok - 1) {
+                    if (map[k][l] > 0 && map[k][l - 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l - 1]);
+                    }
+                    if (map[k][l] > 0 && map[k - 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k - 1][l]);
+                    }
+                    if (map[k][l] > 0 && map[k + 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k + 1][l]);
+                    }
+                }
+
+                if (l == 0 && k == 0) {
+                    if (map[k][l] > 0 && map[k][l + 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l + 1]);
+                    }
+                    if (map[k][l] > 0 && map[k + 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k + 1][l]);
+                    }
+                }
+
+                if (l == 0 && k == wysok - 1) {
+                    if (map[k][l] > 0 && map[k][l + 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l + 1]);
+                    }
+                    if (map[k][l] > 0 && map[k - 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k - 1][l]);
+                    }
+                }
+
+                if (l == szer - 1 && k == wysok - 1) {
+                    if (map[k][l] > 0 && map[k][l - 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l - 1]);
+                    }
+                    if (map[k][l] > 0 && map[k - 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k - 1][l]);
+                    }
+                }
+                if (l == szer - 1 && k == 0) {
+                    if (map[k][l] > 0 && map[k][l - 1] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k][l - 1]);
+                    }
+                    if (map[k][l] > 0 && map[k + 1][l] > 0) {
+                        graph.addEdge(nodesNumerated[k][l], nodesNumerated[k + 1][l]);
+                    }
+                }
+            }
+
+        }
+        return graph;
+
+
+    }
+    static int BFSStandard(Graph graph, int start, int end) {
+
+        System.out.println("graph: " + graph);
+
+        boolean[] visitedNodesTable = new boolean[graph.NoOfNodes];
+        int[] distanceOnNode = new int[graph.NoOfNodes];
+
+        ListFiFO listOfNodesToExamine = new ListFiFO();
+
+        listOfNodesToExamine.add_back(start);
+        visitedNodesTable[start] = true;
+
+        distanceOnNode[start] = 0;
+
+
+        while (listOfNodesToExamine.length() > 0) {
+            int nodeToCheck = (int)listOfNodesToExamine.pop_first_el();
+            System.out.println("pulled to check: " + nodeToCheck);
+            visitedNodesTable[nodeToCheck] = true;
+
+            for (int i = 0; i < graph.edges[nodeToCheck].length(); i++) {
+                int nodeAdjacent = (int)graph.edges[nodeToCheck].get_by_index(i);
+                if (visitedNodesTable[nodeAdjacent] == false) {
+                    System.out.println("in next level neighbours of node will be visited: " + nodeAdjacent);
+                    listOfNodesToExamine.add_back(nodeAdjacent);
+                    distanceOnNode[nodeAdjacent] = distanceOnNode[nodeToCheck] + 1;
+                    System.out.println("for node : "+ nodeAdjacent+ "min distance was set equal to: " + distanceOnNode[nodeAdjacent]+" and it was assumed it is impossible to get this node faster");
+
+                    if (nodeAdjacent == end) return distanceOnNode[nodeAdjacent];
+                }
+            }
+        }
+        return -100000000;
+    }
+
     private void BFS(Main main, int[][] allSteps_events, int init_step, int index_of_plane, int current_result, boolean detonated) {
+
     }
 
 
@@ -156,11 +314,13 @@ public class Main {
         public Graph(int NoOfNodes){
             this.NoOfNodes = NoOfNodes;
             this.edges = new ListFiFO[NoOfNodes];
+            for (int i=0; i < NoOfNodes; i++){
+                edges[i] = new ListFiFO();
+            }
         }
 
         void addEdge(int from, int to){
             edges[from].add_back(to);
-            edges[to].add_back(from);
         }
 
         @Override
@@ -209,6 +369,10 @@ public class Main {
             list = newTable;
         }
 
+        int length() {
+            return current_index_for_new - index_of_first_el;
+        }
+
         @Override
         public String toString() {
             return "ListFiFO{" +
@@ -216,7 +380,7 @@ public class Main {
                     ", list=" + Arrays.toString(list) +
                     ", index_of_first_el=" + index_of_first_el +
                     ", current_index_for_new=" + current_index_for_new +
-                    '}';
+                    '}' + "\n";
         }
     }
 
